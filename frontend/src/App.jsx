@@ -25,6 +25,7 @@ const translations = {
     signOut: 'Sign out',
     footer: 'Independent loyalty platform · Customer support at the clinic',
     pointsSuffix: 'points',
+    langLabel: 'Language',
   },
   ar: {
     eyebrow: 'عيادة ناطور',
@@ -49,6 +50,7 @@ const translations = {
     signOut: 'تسجيل الخروج',
     footer: 'منصة ولاء مستقلة · دعم العملاء في العيادة',
     pointsSuffix: 'نقطة',
+    langLabel: 'اللغة',
   },
   he: {
     eyebrow: 'קליניקת נاطור',
@@ -73,14 +75,16 @@ const translations = {
     signOut: 'יציאה',
     footer: 'פלטפורמת נאמנות עצמאית · תמיכת לקוחות בקליניקה',
     pointsSuffix: 'נקודות',
+    langLabel: 'שפה',
   },
 };
 
 const rtlLanguages = new Set(['ar', 'he']);
+const rewardIcons = ['🎁', '✨', '💎', '🌟', '🎀', '🥂', '🧖', '🌸'];
 
 export default function App() {
   const [lang, setLang] = useState(() => localStorage.getItem('lang') || 'en');
-  const [mode, setMode] = useState('login'); // login | register
+  const [mode, setMode] = useState('login');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -89,6 +93,7 @@ export default function App() {
   const [profile, setProfile] = useState(null);
   const [rewards, setRewards] = useState([]);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const t = translations[lang] || translations.en;
   const isRtl = rtlLanguages.has(lang);
@@ -111,17 +116,20 @@ export default function App() {
   async function login(e) {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       const data = await api('/auth/token/', { method: 'POST', body: JSON.stringify({ phone, password }) });
       localStorage.setItem('access', data.access);
       setToken(data.access);
       await loadProfile(data.access);
     } catch (err) { setError(err.message); }
+    finally { setLoading(false); }
   }
 
   async function register(e) {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       await api('/auth/register/', {
         method: 'POST',
@@ -132,6 +140,7 @@ export default function App() {
       setToken(data.access);
       await loadProfile(data.access);
     } catch (err) { setError(err.message); }
+    finally { setLoading(false); }
   }
 
   useEffect(() => {
@@ -161,65 +170,115 @@ export default function App() {
   }
 
   return (
-    <main className="shell" dir={isRtl ? 'rtl' : 'ltr'}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <span className="eyebrow">{t.eyebrow}</span>
-        <select value={lang} onChange={e => setLang(e.target.value)} aria-label="Language">
-          <option value="en">English</option>
-          <option value="ar">العربية</option>
-          <option value="he">עברית</option>
-        </select>
-      </div>
-      <header><h1>{t.title}</h1><p>{t.subtitle}</p></header>
-      {error && <p className="error">{error}</p>}
-      {!token ? (
-        <form className="panel login" onSubmit={mode === 'login' ? login : register}>
-          <h2>{mode === 'login' ? t.login : t.register}</h2>
-          {mode === 'register' && (
-            <>
-              <label>{t.firstName}<input value={firstName} onChange={e => setFirstName(e.target.value)} required /></label>
-              <label>{t.lastName}<input value={lastName} onChange={e => setLastName(e.target.value)} /></label>
-            </>
-          )}
-          <label>{t.phone}<input value={phone} onChange={e => setPhone(e.target.value)} required placeholder="+972..." /></label>
-          <label>{t.password}<input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} /></label>
-          <button>{mode === 'login' ? t.signIn : t.signUp}</button>
-          <small style={{ display: 'block', marginTop: 8, textAlign: 'center' }}>
-            <button type="button" className="secondary" style={{ padding: '6px 10px' }}
-              onClick={() => setMode(mode === 'login' ? 'register' : 'login')}>
+    <div className="ambient" aria-hidden="true">
+      <div className="orb orb-1" />
+      <div className="orb orb-2" />
+      <div className="orb orb-3" />
+
+      <main className="shell" dir={isRtl ? 'rtl' : 'ltr'}>
+        <header className="topbar">
+          <div className="brand">
+            <span className="brand-mark">N</span>
+            <span className="brand-name">{t.eyebrow}</span>
+          </div>
+          <label className="lang-switch" title={t.langLabel}>
+            <span className="lang-globe">🌐</span>
+            <select value={lang} onChange={e => setLang(e.target.value)} aria-label={t.langLabel}>
+              <option value="en">English</option>
+              <option value="ar">العربية</option>
+              <option value="he">עברית</option>
+            </select>
+          </label>
+        </header>
+
+        <section className="hero">
+          <span className="hero-eyebrow">{t.eyebrow}</span>
+          <h1>{t.title}</h1>
+          <p>{t.subtitle}</p>
+        </section>
+
+        {error && <div className="alert">{error}</div>}
+
+        {!token ? (
+          <form className="glass card auth" onSubmit={mode === 'login' ? login : register}>
+            <h2>{mode === 'login' ? t.login : t.register}</h2>
+            {mode === 'register' && (
+              <>
+                <label className="field">
+                  <span>{t.firstName}</span>
+                  <input value={firstName} onChange={e => setFirstName(e.target.value)} required autoComplete="given-name" />
+                </label>
+                <label className="field">
+                  <span>{t.lastName}</span>
+                  <input value={lastName} onChange={e => setLastName(e.target.value)} autoComplete="family-name" />
+                </label>
+              </>
+            )}
+            <label className="field">
+              <span>{t.phone}</span>
+              <input value={phone} onChange={e => setPhone(e.target.value)} required placeholder="+972..." autoComplete="tel" dir="ltr" />
+            </label>
+            <label className="field">
+              <span>{t.password}</span>
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
+            </label>
+            <button className="btn-gold" disabled={loading}>
+              {loading ? '…' : mode === 'login' ? t.signIn : t.signUp}
+            </button>
+            <button type="button" className="btn-link" onClick={() => setMode(mode === 'login' ? 'register' : 'login')}>
               {mode === 'login' ? t.toRegister : t.toLogin}
             </button>
-          </small>
-        </form>
-      ) : profile && (
-        <>
-          <section className="balance">
-            <span>{t.balanceLabel}</span>
-            <strong>{profile.balance.toLocaleString()}</strong>
-            <small>{t.balanceSub}</small>
-          </section>
-          <section className="panel">
-            <h2>{t.rewardsTitle}</h2>
-            {rewards.length ? rewards.map(r => (
-              <article className="reward" key={r.id}>
-                <div><b>{r.name}</b><p>{r.description}</p><small>{r.points_cost} {t.pointsSuffix}</small></div>
-                <button disabled={profile.balance < r.points_cost} onClick={() => redeem(r.id)}>{t.redeem}</button>
-              </article>
-            )) : <p>{t.noRewards}</p>}
-          </section>
-          <section className="panel">
-            <h2>{t.historyTitle}</h2>
-            {profile.history.map(x => (
-              <article className="history" key={x.id}>
-                <span>{x.description}</span>
-                <b className={x.points < 0 ? 'negative' : ''}>{x.points > 0 ? '+' : ''}{x.points}</b>
-              </article>
-            ))}
-          </section>
-          <button className="secondary" onClick={signOut}>{t.signOut}</button>
-        </>
-      )}
-      <footer>{t.footer}</footer>
-    </main>
+          </form>
+        ) : profile && (
+          <div className="dashboard fade-up">
+            <section className="balance glass">
+              <span className="balance-label">{t.balanceLabel}</span>
+              <strong className="balance-value">{profile.balance.toLocaleString()}</strong>
+              <small>{t.balanceSub}</small>
+            </section>
+
+            <section className="glass card">
+              <h2>{t.rewardsTitle}</h2>
+              {rewards.length ? (
+                <div className="reward-list">
+                  {rewards.map((r, i) => (
+                    <article className="reward" key={r.id}>
+                      <span className="reward-icon">{rewardIcons[i % rewardIcons.length]}</span>
+                      <div className="reward-body">
+                        <b>{r.name}</b>
+                        <p>{r.description}</p>
+                      </div>
+                      <div className="reward-cta">
+                        <small className="points-pill">{r.points_cost} {t.pointsSuffix}</small>
+                        <button className="btn-gold" disabled={profile.balance < r.points_cost} onClick={() => redeem(r.id)}>
+                          {t.redeem}
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : <p className="muted">{t.noRewards}</p>}
+            </section>
+
+            <section className="glass card">
+              <h2>{t.historyTitle}</h2>
+              <div className="history-list">
+                {profile.history.map(x => (
+                  <article className="history" key={x.id}>
+                    <span className={`history-dot ${x.points < 0 ? 'minus' : 'plus'}`} />
+                    <span className="history-desc">{x.description}</span>
+                    <b className={x.points < 0 ? 'negative' : 'positive'}>{x.points > 0 ? '+' : ''}{x.points}</b>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <button className="btn-ghost" onClick={signOut}>{t.signOut}</button>
+          </div>
+        )}
+
+        <footer>{t.footer}</footer>
+      </main>
+    </div>
   );
 }
