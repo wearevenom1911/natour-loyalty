@@ -1,0 +1,10 @@
+:root{font-family:Inter,Arial,sans-serif;color:#302820;background:#f7f4f0;font-synthesis:none}
+*{box-sizing:border-box}body{margin:0}.shell{max-width:760px;margin:0 auto;padding:42px 22px}
+header{margin-bottom:28px}.eyebrow{letter-spacing:.2em;font-size:11px;color:#9a806c;font-weight:700}
+h1{font-family:Georgia,serif;font-size:42px;margin:8px 0;color:#49392f}header p{color:#89796e}
+.panel,.balance{background:white;border:1px solid #e9e1d9;border-radius:18px;padding:24px;margin:18px 0;box-shadow:0 8px 28px #49392f0a}
+.balance{background:#49392f;color:white;display:flex;flex-direction:column;gap:8px}.balance span,.balance small{color:#e0d2c5;font-size:12px;letter-spacing:.08em}.balance strong{font:56px Georgia,serif}
+label{display:block;margin:16px 0;color:#6f5e51;font-size:14px}input{display:block;width:100%;padding:13px;margin-top:7px;border:1px solid #ddd2c8;border-radius:10px;font:inherit}
+button{background:#8d6d55;color:white;border:0;border-radius:10px;padding:12px 18px;font-weight:700;cursor:pointer}button:disabled{opacity:.4;cursor:not-allowed}.login button{width:100%;margin:8px 0}
+.reward,.history{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 0;border-top:1px solid #eee7e0}.reward p{margin:5px 0;color:#827469}.reward small,small{color:#89796e}.history b{color:#477a59}.history .negative{color:#a35b50}
+.secondary{background:transparent;color:#705744;border:1px solid #cbb9a8}.error{background:#fff0ed;color:#9b3f32;padding:12px;border-radius:10px}footer{text-align:center;color:#9a8b80;font-size:12px;padding:28px}
